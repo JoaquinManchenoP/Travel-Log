@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const pinRoute = require("./routes/pins");
+const userRoute = require("./routes/users");
 
 const dotenv = require("dotenv").config();
 
@@ -26,6 +27,7 @@ connection.once("open", () => {
   console.log("Mongoose database connection was established succesfully");
 });
 
+app.use("/api/users", userRoute);
 app.use("/api/pins", pinRoute);
 
 app.listen(port, () => {
