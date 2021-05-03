@@ -1,10 +1,9 @@
-import logo from "./logo.svg";
-import "./App.css";
+import MainPage from "./Pages/MainPage";
 
 function App() {
   return (
     <div className="App">
-      <h1 className="text-red-400">Me hago de llamar joaquin</h1>
+      <MainPage />
     </div>
   );
 }
