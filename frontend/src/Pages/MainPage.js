@@ -7,8 +7,10 @@ import axios from "axios";
 import { format } from "timeago.js";
 
 export default function MainPage() {
+  const currentUser = "struas";
   const [pins, setPins] = useState([]);
   const [currentPlace, setCurrentPlace] = useState(null);
+  const [newPlace, setNewPlace] = useState(null);
 
   const [viewport, setViewport] = useState({
     width: "100vw",
@@ -35,6 +37,16 @@ export default function MainPage() {
     setCurrentPlace(id);
   }
 
+  function handleDoubleClick(e) {
+    console.log(e);
+    const [long, lat] = e.lngLat;
+
+    setNewPlace({
+      long,
+      lat,
+    });
+  }
+
   return (
     <div>
       <ReactMapGL
@@ -42,18 +54,26 @@ export default function MainPage() {
         mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
         onViewportChange={(nextViewport) => setViewport(nextViewport)}
         mapStyle={"mapbox://styles/sniasnias/cko4v8ee11fqr17mn2nd8sx4l"}
+        onDblClick={handleDoubleClick}
       >
         {pins.map((thisPin) => (
           <>
-            {console.log(thisPin.lat)}
             <Marker
               latitude={thisPin.lat}
               longitude={thisPin.long}
-              offsetLeft={-30}
+              offsetLeft={-10}
               offsetTop={-40}
               onClick={() => handleMarkerClick(thisPin._id)}
             >
-              <ImLocation size={40} className="text-yellow-400" />
+              <ImLocation
+                size={28}
+                className={
+                  thisPin.username === currentUser
+                    ? "text-yellow-400"
+                    : "text-red-400"
+                }
+                style={{ cursor: "pointer" }}
+              />
             </Marker>
 
             {thisPin._id === currentPlace && (
@@ -105,6 +125,20 @@ export default function MainPage() {
             )}
           </>
         ))}
+
+        {newPlace && (
+          <Popup
+            latitude={newPlace.lat}
+            longitude={newPlace.long}
+            closeOnClick={true}
+            offsetLeft={10}
+            offsetTop={-6}
+            anchor="left"
+            onClose={() => setNewPlace(null)}
+          >
+            Hello
+          </Popup>
+        )}
       </ReactMapGL>
     </div>
   );
