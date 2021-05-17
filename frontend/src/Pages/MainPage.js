@@ -9,8 +9,12 @@ import { format } from "timeago.js";
 export default function MainPage() {
   const currentUser = "struas";
   const [pins, setPins] = useState([]);
-  const [currentPlace, setCurrentPlace] = useState(null);
   const [newPlace, setNewPlace] = useState(null);
+  const [currentPlace, setCurrentPlace] = useState(null);
+
+  const [title, setTitle] = useState(null);
+  const [description, setDescription] = useState(null);
+  const [rating, setRating] = useState(null);
 
   const [viewport, setViewport] = useState({
     width: "100vw",
@@ -33,12 +37,18 @@ export default function MainPage() {
     getPins();
   }, []);
 
-  function handleMarkerClick(id) {
+  function handleMarkerClick(id, lat, long) {
     setCurrentPlace(id);
+    setViewport({
+      ...viewport,
+      latitude: lat,
+      longitude: long,
+    });
   }
 
   function handleDoubleClick(e) {
     console.log(e);
+
     const [long, lat] = e.lngLat;
 
     setNewPlace({
@@ -46,6 +56,26 @@ export default function MainPage() {
       lat,
     });
   }
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    const newPin = {
+      username: currentUser,
+      title: title,
+      desc: description,
+      rating: rating,
+      lat: newPlace.lat,
+      long: newPlace.long,
+    };
+    try {
+      const res = await axios.post("/pins", newPin);
+      setPins([...pins, res.data]);
+      setNewPlace(null);
+      console.log(pins);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>
@@ -55,6 +85,7 @@ export default function MainPage() {
         onViewportChange={(nextViewport) => setViewport(nextViewport)}
         mapStyle={"mapbox://styles/sniasnias/cko4v8ee11fqr17mn2nd8sx4l"}
         onDblClick={handleDoubleClick}
+        transitionDuration="100"
       >
         {pins.map((thisPin) => (
           <>
@@ -63,7 +94,9 @@ export default function MainPage() {
               longitude={thisPin.long}
               offsetLeft={-10}
               offsetTop={-40}
-              onClick={() => handleMarkerClick(thisPin._id)}
+              onClick={() =>
+                handleMarkerClick(thisPin._id, thisPin.lat, thisPin.long)
+              }
             >
               <ImLocation
                 size={28}
@@ -80,13 +113,13 @@ export default function MainPage() {
               <Popup
                 latitude={thisPin.lat}
                 longitude={thisPin.long}
-                closeOnClick={true}
-                offsetLeft={10}
-                offsetTop={-6}
+                closeOnClick={false}
+                offsetLeft={30}
+                offsetTop={-16}
                 anchor="left"
-                onClose={() => handleMarkerClick(null)}
+                onClose={() => setCurrentPlace(null)}
               >
-                <div className="locationCard h-56 w-48 divide-y-2 divide-yellow-300 space-y-1 mx-3">
+                <div className="locationCard h-66 w-48 divide-y-2 divide-yellow-400 space-y-1 mx-3">
                   <div className="location ">
                     <label className="font-bold text-xs text-yellow-400 ">
                       Location
@@ -95,7 +128,7 @@ export default function MainPage() {
                   </div>
                   <div className="review">
                     <label className="font-bold text-xs text-yellow-400">
-                      Review
+                      Description
                     </label>
                     <h1 className="text-sm pb-1 ">{thisPin.desc}</h1>
                   </div>
@@ -104,11 +137,9 @@ export default function MainPage() {
                       Rating
                     </label>
                     <div className="rating flex  pb-1 ">
-                      <AiFillStar />
-                      <AiFillStar />
-                      <AiFillStar />
-                      <AiFillStar />
-                      <AiFillStar />
+                      {Array(thisPin.rating).fill(
+                        <AiFillStar size={16} className="text-blue-300" />
+                      )}
                     </div>
                   </div>
                   <div className="information space-y-2">
@@ -130,13 +161,54 @@ export default function MainPage() {
           <Popup
             latitude={newPlace.lat}
             longitude={newPlace.long}
-            closeOnClick={true}
+            closeOnClick={false}
             offsetLeft={10}
             offsetTop={-6}
             anchor="left"
             onClose={() => setNewPlace(null)}
           >
-            Hello
+            <div className="form" onSubmit={handleFormSubmit}>
+              <form className=" h-60 w-48 space-y-2 mx-3">
+                <div className="title border-b-2">
+                  <label className="font-bold text-xs text-yellow-400">
+                    Title
+                  </label>
+                  <input
+                    placeholder="Enter a title.."
+                    onChange={(e) => setTitle(e.target.value)}
+                  ></input>
+                </div>
+                <div className="description border-b-2 ">
+                  <label className="font-bold text-xs text-yellow-400">
+                    Description
+                  </label>
+                  <textarea
+                    placeholder="Tell us about this place..."
+                    onChange={(e) => setDescription(e.target.value)}
+                  ></textarea>
+                </div>
+                <div className="rating">
+                  <label className="font-bold text-xs text-yellow-400">
+                    Give it a rating
+                  </label>
+                  <br />
+                  <select
+                    className="text-xs border-b-2 mb-3"
+                    onChange={(e) => setRating(e.target.value)}
+                  >
+                    <option value="1">1</option>
+                    <option value="2">3</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select>
+                  <br />
+                  <button className="h-8 w-full bg-yellow-400" type="submit">
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
           </Popup>
         )}
       </ReactMapGL>
