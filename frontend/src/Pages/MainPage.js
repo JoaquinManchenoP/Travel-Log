@@ -5,9 +5,11 @@ import { ImLocation } from "react-icons/im";
 import { AiFillStar } from "react-icons/ai";
 import axios from "axios";
 import { format } from "timeago.js";
+import Register from "../components/Register";
 
 export default function MainPage() {
-  const currentUser = "struas";
+  const [currentUser, setCurrentUser] = useState("struas");
+
   const [pins, setPins] = useState([]);
   const [newPlace, setNewPlace] = useState(null);
   const [currentPlace, setCurrentPlace] = useState(null);
@@ -92,8 +94,8 @@ export default function MainPage() {
             <Marker
               latitude={thisPin.lat}
               longitude={thisPin.long}
-              offsetLeft={-10}
-              offsetTop={-40}
+              offsetLeft={-15}
+              offsetTop={-20}
               onClick={() =>
                 handleMarkerClick(thisPin._id, thisPin.lat, thisPin.long)
               }
@@ -211,6 +213,22 @@ export default function MainPage() {
             </div>
           </Popup>
         )}
+        {currentUser ? (
+          <button className="m-4 h-8 w-20 bg-red-400 rounded-xl font-thin text-sm text-white ">
+            LOGOUT
+          </button>
+        ) : (
+          <div className="buttons m-4 space-x-3 text-white">
+            <button className="h-8 w-20 bg-yellow-400 rounded-xl font-thin text-sm">
+              LOGIN
+            </button>
+            <button className="h-8 w-20 bg-gray-400 rounded-xl font-thin text-sm">
+              REGISTER
+            </button>
+          </div>
+        )}
+
+        <Register />
       </ReactMapGL>
     </div>
   );
