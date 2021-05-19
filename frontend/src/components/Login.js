@@ -3,26 +3,27 @@ import { ImAirplane } from "react-icons/im";
 import axios from "axios";
 import { AiFillCloseSquare } from "react-icons/ai";
 
-export default function Register({ setShowRegister }) {
+export default function Login({ setShowLogin, myStorage, setCurrentUser }) {
   const [success, setSuccess] = useState(false);
   const [loginError, setLoginError] = useState(false);
 
   const userNameRef = useRef();
-  const emailRef = useRef();
+
   const passwordRef = useRef();
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    const newUser = {
+    const user = {
       username: userNameRef.current.value,
-      email: userNameRef.current.value,
       password: passwordRef.current.value,
     };
-    console.log(newUser);
 
     try {
-      const res = await axios.post("/users/register", newUser);
+      const res = await axios.post("/users/login", user);
+      myStorage.setItem("user", res.data.username);
+      setCurrentUser(res.data.username);
+      setShowLogin(false);
       console.log(res);
       setLoginError(false);
       setSuccess(true);
@@ -38,7 +39,7 @@ export default function Register({ setShowRegister }) {
         className="closeButton absolute top-2 right-2 text-red-400"
         style={{ cursor: "pointer" }}
       >
-        <AiFillCloseSquare size={22} onClick={() => setShowRegister(false)} />
+        <AiFillCloseSquare size={22} onClick={() => setShowLogin(false)} />
       </div>
       <div className="logo flex justify-center mb-6">
         <ImAirplane className="text-yellow-400" size={25} />
@@ -53,12 +54,7 @@ export default function Register({ setShowRegister }) {
           type="text"
           ref={userNameRef}
         ></input>
-        <input
-          className="w-2/3 text-center"
-          placeholder="Email"
-          type="email"
-          ref={emailRef}
-        ></input>
+
         <input
           className="w-2/3 text-center"
           placeholder="Password"
@@ -70,13 +66,9 @@ export default function Register({ setShowRegister }) {
           className=" h-8 w-4/5 bg-yellow-400 text-white rounded-lg "
           type="submit"
         >
-          Register
+          Login
         </button>
-        {success && (
-          <p className="text-green-600 text-xxs">
-            You have beed registered. Thank you
-          </p>
-        )}
+
         {loginError && (
           <p className="text-red-500 text-xxs">
             Theres been an error! try again

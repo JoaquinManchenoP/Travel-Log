@@ -2,18 +2,20 @@ import React from "react";
 import { useState, useEffect } from "react";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
 import { ImLocation } from "react-icons/im";
+import Login from "../components/Login";
 import { AiFillStar } from "react-icons/ai";
 import axios from "axios";
 import { format } from "timeago.js";
 import Register from "../components/Register";
 
 export default function MainPage() {
-  const [currentUser, setCurrentUser] = useState("struas");
-
+  const myStorage = window.localStorage;
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const [pins, setPins] = useState([]);
   const [newPlace, setNewPlace] = useState(null);
   const [currentPlace, setCurrentPlace] = useState(null);
-
   const [title, setTitle] = useState(null);
   const [description, setDescription] = useState(null);
   const [rating, setRating] = useState(null);
@@ -79,6 +81,18 @@ export default function MainPage() {
     }
   };
 
+  const openRegister = () => {
+    setShowRegister(true);
+  };
+
+  const openLogin = () => {
+    setShowLogin(true);
+  };
+
+  const handleLogout = () => {
+    myStorage.removeItem("user");
+    setCurrentUser(null);
+  };
   return (
     <div>
       <ReactMapGL
@@ -94,7 +108,7 @@ export default function MainPage() {
             <Marker
               latitude={thisPin.lat}
               longitude={thisPin.long}
-              offsetLeft={-15}
+              offsetLeft={-18}
               offsetTop={-20}
               onClick={() =>
                 handleMarkerClick(thisPin._id, thisPin.lat, thisPin.long)
@@ -214,21 +228,36 @@ export default function MainPage() {
           </Popup>
         )}
         {currentUser ? (
-          <button className="m-4 h-8 w-20 bg-red-400 rounded-xl font-thin text-sm text-white ">
+          <button
+            className="m-4 h-8 w-20 bg-red-400 rounded-xl font-thin text-sm text-white "
+            onClick={handleLogout}
+          >
             LOGOUT
           </button>
         ) : (
           <div className="buttons m-4 space-x-3 text-white">
-            <button className="h-8 w-20 bg-yellow-400 rounded-xl font-thin text-sm">
+            <button
+              className="h-8 w-20 bg-yellow-400 rounded-xl font-thin text-sm"
+              onClick={openLogin}
+            >
               LOGIN
             </button>
-            <button className="h-8 w-20 bg-gray-400 rounded-xl font-thin text-sm">
+            <button
+              className="h-8 w-20 bg-gray-400 rounded-xl font-thin text-sm"
+              onClick={openRegister}
+            >
               REGISTER
             </button>
           </div>
         )}
-
-        <Register />
+        {showRegister && <Register setShowRegister={setShowRegister} />}
+        {showLogin && (
+          <Login
+            setShowLogin={setShowLogin}
+            myStorage={myStorage}
+            setCurrentUser={setCurrentUser}
+          />
+        )}
       </ReactMapGL>
     </div>
   );
