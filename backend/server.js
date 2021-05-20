@@ -30,6 +30,6 @@ connection.once("open", () => {
 app.use("/api/users", userRoute);
 app.use("/api/pins", pinRoute);
 
-app.listen(port, () => {
+app.listen(port || 5001, () => {
   console.log(`Server is running on port:${port}`);
 });

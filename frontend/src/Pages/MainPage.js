@@ -108,8 +108,8 @@ export default function MainPage() {
             <Marker
               latitude={thisPin.lat}
               longitude={thisPin.long}
-              offsetLeft={-18}
-              offsetTop={-20}
+              offsetLeft={-viewport.zoom * 7}
+              offsetTop={-viewport.zoom * 7}
               onClick={() =>
                 handleMarkerClick(thisPin._id, thisPin.lat, thisPin.long)
               }
